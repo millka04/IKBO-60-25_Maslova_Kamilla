@@ -1,0 +1,9 @@
+ls
+
+ls -l /home/user
+cd /tmp
+#dfghjkl
+
+unknown_command arg
+exit 1
+cd ..
