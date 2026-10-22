@@ -25,9 +25,16 @@ def cmd_exit(shell, args):
     shell.running = False
     return ""
 
+def cmd_vfs_info(shell, args):
+    """Выводит имя загруженной VFS и SHA-256 хеш её данных."""
+    if args:
+        raise ShellError("vfs-info: команда не принимает аргументы")
+    return f"Имя VFS: {shell.vfs.name}\nSHA-256: {shell.vfs.sha256}"
+
 
 COMMANDS = {
     "ls": cmd_ls,
     "cd": cmd_cd,
     "exit": cmd_exit,
+    "vfs-info": cmd_vfs_info,
 }
