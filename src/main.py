@@ -4,6 +4,7 @@ import argparse
 import sys
 from typing import Any
 
+from cargo_source import get_direct_dependencies
 from config import load_config
 from errors import ToolError
 
@@ -23,10 +24,14 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def run(config_path: str) -> None:
-    """Выводит все параметры конфигурации."""
+    """Выводит прямые зависимости заданного пакета."""
     config: dict[str, Any] = load_config(config_path)
-    for key, value in config.items():
-        print(f"{key}: {value}")
+    dependencies: list[str] = get_direct_dependencies(
+        config["repository"], config["package"]
+    )
+    print(f"Прямые зависимости пакета {config['package']}:")
+    for name in dependencies:
+        print(name)
 
 
 def main() -> int:
