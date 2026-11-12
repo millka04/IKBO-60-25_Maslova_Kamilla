@@ -8,6 +8,7 @@ from typing import Any
 from config import load_config
 from errors import ToolError
 from graph import GraphBuilder
+from reverse import find_reverse_dependencies
 from sources import (
     CargoSource,
     DependencySource,
@@ -27,6 +28,11 @@ def parse_arguments() -> argparse.Namespace:
         default="config.yaml",
         help="путь к файлу конфигурации YAML",
     )
+    parser.add_argument(
+        "--reverse",
+        default="",
+        help="показать пакеты, которые зависят от этого пакета",
+    )
     return parser.parse_args()
 
 
@@ -44,20 +50,34 @@ def print_graph(graph: dict[str, list[str]]) -> None:
         print(f"{name} -> {text}")
 
 
-def run(config_path: str) -> None:
-    """Строит граф зависимостей и выводит его."""
+def print_reverse(graph: dict[str, list[str]], target: str) -> None:
+    """Печатает пакеты, которые зависят от target."""
+    names: list[str] = find_reverse_dependencies(graph, target)
+    if not names:
+        print(f"От пакета {target} никто не зависит")
+        return
+    print(f"От пакета {target} зависят:")
+    for name in names:
+        print(name)
+
+
+def run(config_path: str, reverse_target: str) -> None:
+    """Строит граф и выводит его или обратные зависимости."""
     config: dict[str, Any] = load_config(config_path)
     source: DependencySource = create_source(config)
     builder = GraphBuilder(source, config["max_depth"], config["filter"])
     graph: dict[str, list[str]] = builder.build(config["package"])
-    print_graph(graph)
+    if reverse_target:
+        print_reverse(graph, reverse_target)
+    else:
+        print_graph(graph)
 
 
 def main() -> int:
     """Запускает программу и возвращает код завершения."""
     arguments: argparse.Namespace = parse_arguments()
     try:
-        run(arguments.config)
+        run(arguments.config, arguments.reverse)
     except ToolError as error:
         print(f"Ошибка: {error}", file=sys.stderr)
         return EXIT_ERROR
