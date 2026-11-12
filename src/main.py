@@ -4,9 +4,16 @@ import argparse
 import sys
 from typing import Any
 
-from cargo_source import get_direct_dependencies
+
 from config import load_config
 from errors import ToolError
+from graph import GraphBuilder
+from sources import (
+    CargoSource,
+    DependencySource,
+    DictSource,
+    load_repository_file,
+)
 
 EXIT_OK: int = 0
 EXIT_ERROR: int = 1
@@ -23,15 +30,27 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def create_source(config: dict[str, Any]) -> DependencySource:
+    """Выбирает источник данных: интернет или тестовый файл."""
+    if config["test_mode"]:
+        return DictSource(load_repository_file(config["repository"]))
+    return CargoSource(config["repository"])
+
+
+def print_graph(graph: dict[str, list[str]]) -> None:
+    """Печатает граф: пакет -> его зависимости."""
+    for name, dependencies in graph.items():
+        text: str = " ".join(dependencies)
+        print(f"{name} -> {text}")
+
+
 def run(config_path: str) -> None:
-    """Выводит прямые зависимости заданного пакета."""
+    """Строит граф зависимостей и выводит его."""
     config: dict[str, Any] = load_config(config_path)
-    dependencies: list[str] = get_direct_dependencies(
-        config["repository"], config["package"]
-    )
-    print(f"Прямые зависимости пакета {config['package']}:")
-    for name in dependencies:
-        print(name)
+    source: DependencySource = create_source(config)
+    builder = GraphBuilder(source, config["max_depth"], config["filter"])
+    graph: dict[str, list[str]] = builder.build(config["package"])
+    print_graph(graph)
 
 
 def main() -> int:

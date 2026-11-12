@@ -1,0 +1,6 @@
+package: A
+repository: examples/cycle.txt
+test_mode: true
+output_file: graph.png
+max_depth: 5
+filter: ""
