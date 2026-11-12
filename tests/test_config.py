@@ -30,7 +30,7 @@ BAD_REPLACEMENTS: list[tuple[str, str]] = [
 
 def write_config(folder: Path, text: str) -> str:
     """Записывает текст в файл конфигурации и возвращает путь."""
-    path: Path = folder / "config.yaml"
+    path: Path = folder / "config_itoa.yaml"
     path.write_text(text, encoding="utf-8")
     return str(path)
 

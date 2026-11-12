@@ -1,0 +1,6 @@
+package: itoa
+repository: https://index.crates.io
+test_mode: false
+output_file: examples/itoa.png
+max_depth: 2
+filter: ""

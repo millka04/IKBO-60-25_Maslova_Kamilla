@@ -67,3 +67,28 @@ C:
 ```
 ./run.sh --config examples/config_test.yaml --reverse C
 ```
+
+
+## Визуализация (этап 5)
+Граф записывается в формате Mermaid в файл `.mmd`, а затем программой
+`mmdc` (mermaid-cli) превращается в картинку PNG. Для работы нужен
+Node.js и команда `npm install -g @mermaid-js/mermaid-cli`.
+
+Примеры (папка `examples`):
+```
+./run.sh --config examples/config_itoa.yaml
+./run.sh --config examples/config_serde_json.yaml
+./run.sh --config examples/config_regex.yaml
+```
+
+### Сравнение с cargo tree
+Результаты сравнивались с командой `cargo tree --depth 2 -e normal`.
+Расхождения:
+- Cargo подбирает версии по semver и Cargo.lock, программа берёт
+  последнюю версию;
+- Cargo учитывает features, программа пропускает опциональные
+  зависимости;
+- Cargo учитывает платформенные зависимости;
+- несколько версий одного пакета в Cargo показываются отдельно, в
+  программе это один узел;
+- `cargo tree` помечает повторяющиеся поддеревья знаком (*).

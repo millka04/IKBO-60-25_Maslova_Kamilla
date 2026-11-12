@@ -1,6 +1,7 @@
 """Инструмент визуализации графа зависимостей пакетов Cargo."""
 
 import argparse
+import os
 import sys
 from typing import Any
 
@@ -8,7 +9,7 @@ from typing import Any
 from config import load_config
 from errors import ToolError
 from graph import GraphBuilder
-from reverse import find_reverse_dependencies
+from mermaid import make_mermaid_text, render_png, save_text
 from sources import (
     CargoSource,
     DependencySource,
@@ -18,6 +19,7 @@ from sources import (
 
 EXIT_OK: int = 0
 EXIT_ERROR: int = 1
+MERMAID_EXTENSION: str = ".mmd"
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -25,13 +27,8 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Граф зависимостей Cargo")
     parser.add_argument(
         "--config",
-        default="config.yaml",
+        default="config_itoa.yaml",
         help="путь к файлу конфигурации YAML",
-    )
-    parser.add_argument(
-        "--reverse",
-        default="",
-        help="показать пакеты, которые зависят от этого пакета",
     )
     return parser.parse_args()
 
@@ -50,34 +47,31 @@ def print_graph(graph: dict[str, list[str]]) -> None:
         print(f"{name} -> {text}")
 
 
-def print_reverse(graph: dict[str, list[str]], target: str) -> None:
-    """Печатает пакеты, которые зависят от target."""
-    names: list[str] = find_reverse_dependencies(graph, target)
-    if not names:
-        print(f"От пакета {target} никто не зависит")
-        return
-    print(f"От пакета {target} зависят:")
-    for name in names:
-        print(name)
+def save_picture(graph: dict[str, list[str]], png_path: str) -> None:
+    """Печатает текст Mermaid, сохраняет его и рисует PNG."""
+    text: str = make_mermaid_text(graph)
+    print(text)
+    mermaid_path: str = os.path.splitext(png_path)[0] + MERMAID_EXTENSION
+    save_text(text, mermaid_path)
+    render_png(mermaid_path, png_path)
+    print(f"Картинка сохранена: {png_path}")
 
 
-def run(config_path: str, reverse_target: str) -> None:
-    """Строит граф и выводит его или обратные зависимости."""
+def run(config_path: str) -> None:
+    """Строит граф, выводит его и сохраняет картинку."""
     config: dict[str, Any] = load_config(config_path)
     source: DependencySource = create_source(config)
     builder = GraphBuilder(source, config["max_depth"], config["filter"])
     graph: dict[str, list[str]] = builder.build(config["package"])
-    if reverse_target:
-        print_reverse(graph, reverse_target)
-    else:
-        print_graph(graph)
+    print_graph(graph)
+    save_picture(graph, config["output_file"])
 
 
 def main() -> int:
     """Запускает программу и возвращает код завершения."""
     arguments: argparse.Namespace = parse_arguments()
     try:
-        run(arguments.config, arguments.reverse)
+        run(arguments.config)
     except ToolError as error:
         print(f"Ошибка: {error}", file=sys.stderr)
         return EXIT_ERROR

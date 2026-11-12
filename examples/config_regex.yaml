@@ -1,0 +1,6 @@
+package: regex
+repository: https://index.crates.io
+test_mode: false
+output_file: examples/regex.png
+max_depth: 2
+filter: ""
