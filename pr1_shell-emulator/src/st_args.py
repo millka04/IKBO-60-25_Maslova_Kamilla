@@ -5,7 +5,9 @@ import argparse
 
 def parse_args(argv=None):
     """Разбирает параметры командной строки."""
-    parser = argparse.ArgumentParser(description="Эмулятор командной строки UNIX (вариант 19)")
+    parser = argparse.ArgumentParser(
+        description="Эмулятор командной строки UNIX (вариант 19)"
+    )
     parser.add_argument("--vfs", help="путь к ZIP-архиву с VFS")
     parser.add_argument("--script", help="путь к стартовому скрипту")
     return parser.parse_args(argv)

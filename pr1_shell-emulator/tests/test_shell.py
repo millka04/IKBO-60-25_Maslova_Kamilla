@@ -23,7 +23,7 @@ class ParseTest(unittest.TestCase):
 class ShellTest(unittest.TestCase):
     """Проверки выполнения команд."""
 
-    def setUp(self):
+    def set_up(self):
         """Создаёт новый эмулятор перед каждым тестом."""
         self.shell = Shell()
 

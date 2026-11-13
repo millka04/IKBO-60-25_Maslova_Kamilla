@@ -17,7 +17,9 @@ class App:
         self.root = tk.Tk()
         self.root.title(shell.title())
         self.root.geometry("800x500")
-        self.output = scrolledtext.ScrolledText(self.root, font=FONT, state="disabled", wrap="word")
+        self.output = scrolledtext.ScrolledText(
+            self.root, font=FONT, state="disabled", wrap="word"
+        )
         self.output.pack(fill="both", expand=True)
         bottom = tk.Frame(self.root)
         bottom.pack(fill="x")
